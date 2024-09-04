@@ -1,0 +1,26 @@
+// routes.tsx
+import Layouts from "@/components/main-layouts";
+import HomePage from "@/pages/home-page";
+import ProfilePage from "@/pages/profile-page";
+import { createBrowserRouter } from "react-router-dom";
+import NotFoundPage from "./pages/not-found-page";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layouts />,
+    errorElement: <NotFoundPage />,
+    children: [
+      {
+        path: "/",
+        element: <HomePage />,
+      },
+      {
+        path: "/profile",
+        element: <ProfilePage />,
+      },
+    ],
+  },
+]);
+
+export default router;

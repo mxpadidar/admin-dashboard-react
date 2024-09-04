@@ -1,7 +1,8 @@
 import AuthContext from "@/context/auth-context";
-import { loginService } from "@/services/login-service";
+import loginApi from "@/services/api/login-api";
+import { TokenModel } from "@/services/models";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -10,11 +11,18 @@ interface AuthProviderProps {
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const mutation = useMutation(loginService);
+  useEffect(() => {
+    const accessToken = localStorage.getItem("access-token");
+    if (accessToken) {
+      setIsAuthenticated(true);
+    }
+  }, []);
 
-  const loginMutation = useMutation(loginService, {
-    onSuccess: (token: string) => {
-      localStorage.setItem("access-token", token);
+  const mutation = useMutation({
+    mutationFn: loginApi,
+    onSuccess: (token: TokenModel) => {
+      localStorage.setItem("access-token", token.accessToken);
+      localStorage.setItem("refresh-token", token.refreshToken);
       setIsAuthenticated(true);
     },
     onError: () => {
@@ -22,12 +30,13 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     },
   });
 
-  const login = (username: string, password: string) => {
-    loginMutation.mutate({ username, password });
+  const login = (username: string, password: string): void => {
+    mutation.mutate({ username, password });
   };
 
   const logout = () => {
     localStorage.removeItem("access-token");
+    localStorage.removeItem("refresh-token");
     setIsAuthenticated(false);
   };
 

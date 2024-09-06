@@ -1,5 +1,9 @@
 import axiosInstance from "@/services/axios-instance";
-import { TokenModel } from "@/services/models";
+
+type LoginResponse = {
+  access_token: string;
+  token_type: string;
+};
 
 type LoginApiProps = {
   username: string;
@@ -9,12 +13,12 @@ type LoginApiProps = {
 const loginApi = async ({
   username,
   password,
-}: LoginApiProps): Promise<TokenModel> => {
-  const response = await axiosInstance.post<TokenModel>("/login", {
+}: LoginApiProps): Promise<string> => {
+  const response = await axiosInstance.post<LoginResponse>("/login", {
     username,
     password,
   });
-  return response.data;
+  return response.data.access_token;
 };
 
 export default loginApi;

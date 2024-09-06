@@ -5,7 +5,14 @@ interface QueryProviderProps {
   children: React.ReactNode;
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 60, // 1 hour
+    },
+  },
+});
 
 const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
   return (

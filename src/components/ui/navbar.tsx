@@ -14,13 +14,14 @@ const Navbar: React.FC = () => {
         <Link to="/profile">پروفایل</Link>
       </div>
 
-      <div>
-        {isAuthenticated ? (
-          <Button onClick={() => logout()}>خروج</Button>
-        ) : (
+      {isAuthenticated ? (
+        <Button onClick={() => logout()}>خروج</Button>
+      ) : (
+        <div className="flex gap-3">
           <Button onClick={() => navigate("/login")}>ورود</Button>
-        )}
-      </div>
+          <Button onClick={() => navigate("/register")}>ثبت نام</Button>
+        </div>
+      )}
     </nav>
   );
 };

@@ -1,24 +1,31 @@
 import axiosInstance from "@/services/axios-instance";
+import { useMutation } from "@tanstack/react-query";
+
+export type LoginApiProps = {
+  username: string;
+  password: string;
+};
 
 type LoginResponse = {
   access_token: string;
   token_type: string;
 };
 
-type LoginApiProps = {
-  username: string;
-  password: string;
-};
+interface HookProps {
+  successFn: (data: LoginResponse) => void;
+  errorFn: (error: unknown, variables: LoginApiProps) => void;
+}
 
-const loginApi = async ({
-  username,
-  password,
-}: LoginApiProps): Promise<string> => {
-  const response = await axiosInstance.post<LoginResponse>("/login", {
-    username,
-    password,
+const useLoginApi = ({ successFn, errorFn }: HookProps) => {
+  const mutation = useMutation({
+    mutationFn: async (data: LoginApiProps) => {
+      const response = await axiosInstance.post("/login", { ...data });
+      return response.data;
+    },
+    onSuccess: (data: LoginResponse) => successFn(data),
+    onError: (error, variables) => errorFn(error, variables as LoginApiProps),
   });
-  return response.data.access_token;
+  return mutation;
 };
 
-export default loginApi;
+export default useLoginApi;

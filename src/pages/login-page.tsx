@@ -1,6 +1,6 @@
 import useAuth from "@/hooks/use-auth";
 import React, { useEffect } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 type LoginFormInputs = {
@@ -19,13 +19,9 @@ const LoginPage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = (data) => {
-    login(data.username, data.password);
-  };
-
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white border">
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit((data) => login(data))}>
         <div className="mb-4">
           <label htmlFor="username" className="block text-sm font-medium">
             نام کاربری

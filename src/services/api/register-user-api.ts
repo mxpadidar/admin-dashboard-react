@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "../axios-instance";
 
-export type RegisterUserRequest = {
+export type RegisterApiProps = {
   username: string;
   password: string;
   password_confirm: string;
@@ -9,37 +9,28 @@ export type RegisterUserRequest = {
   last_name: string;
 };
 
-export type RegisterUserResponse = {
+export type RegisterApiResponse = {
   id: number;
   username: string;
   first_name: string;
   last_name: string;
 };
 
-const useRegisterUserApi = ({
-  username,
-  password,
-  password_confirm,
-  first_name,
-  last_name,
-}: RegisterUserRequest) => {
+interface HookProps {
+  successFn: (data: RegisterApiResponse) => void;
+  errorFn: (error: unknown, variables: RegisterApiProps) => void;
+}
+
+const useRegisterApi = ({ successFn, errorFn }: HookProps) => {
   const mutation = useMutation({
-    mutationFn: () =>
-      axiosInstance.post("/register", {
-        username,
-        password,
-        password_confirm,
-        first_name,
-        last_name,
-      }),
-    onSuccess: (data) => {
-      console.log(data);
+    mutationFn: async (data: RegisterApiProps) => {
+      const response = await axiosInstance.post("/register", { ...data });
+      return response.data;
     },
-    onError: (error) => {
-      console.log(error);
-    },
+    onSuccess: (data: RegisterApiResponse) => successFn(data),
+    onError: (error, context) => errorFn(error, context as RegisterApiProps),
   });
   return mutation;
 };
 
-export default useRegisterUserApi;
+export default useRegisterApi;

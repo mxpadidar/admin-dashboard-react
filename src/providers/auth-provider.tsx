@@ -1,17 +1,17 @@
-import loginApi from "@/services/api/login-api";
-import {
-  getAccessToken,
-  removeAccessToken,
-  setAccessToken,
-} from "@/services/token-services";
-import { useMutation } from "@tanstack/react-query";
+import useLoginApi, { LoginApiProps } from "@/services/api/login-api";
+import useRegisterApi, {
+  RegisterApiProps,
+  RegisterApiResponse,
+} from "@/services/api/register-user-api";
+import { getAccessToken, removeAccessToken } from "@/services/token-services";
 import { useEffect, useState } from "react";
 
 import { createContext } from "react";
 
 export interface AuthContextType {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => void;
+  login: (data: LoginApiProps) => void;
+  register: (data: RegisterApiProps) => void;
   logout: () => void;
 }
 
@@ -23,6 +23,27 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const registerMutation = useRegisterApi({
+    successFn: (data: RegisterApiResponse) => {
+      console.log(data);
+      setIsAuthenticated(true);
+    },
+    errorFn: (error: unknown, variables: RegisterApiProps) => {
+      console.log(error);
+      console.log(variables);
+    },
+  });
+
+  const loginMutation = useLoginApi({
+    successFn: (data) => {
+      console.log(data);
+      setIsAuthenticated(true);
+    },
+    errorFn: (error, variables) => {
+      console.log(error);
+      console.log(variables);
+    },
+  });
 
   useEffect(() => {
     const accessToken = getAccessToken();
@@ -31,19 +52,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, []);
 
-  const mutation = useMutation({
-    mutationFn: loginApi,
-    onSuccess: (accessToken: string) => {
-      setAccessToken(accessToken);
-      setIsAuthenticated(true);
-    },
-    onError: () => {
-      setIsAuthenticated(false);
-    },
-  });
+  const login = (data: LoginApiProps) => {
+    loginMutation.mutate(data);
+  };
 
-  const login = (username: string, password: string) => {
-    mutation.mutate({ username, password });
+  const register = (data: RegisterApiProps) => {
+    registerMutation.mutate(data);
   };
 
   const logout = () => {
@@ -52,7 +66,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

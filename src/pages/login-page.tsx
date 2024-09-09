@@ -1,5 +1,5 @@
 import useAuth from "@/hooks/use-auth";
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -11,13 +11,19 @@ type LoginFormInputs = {
 const LoginPage: React.FC = () => {
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
-  const { register, handleSubmit } = useForm<LoginFormInputs>();
+  const { register, handleSubmit } = useForm<LoginFormInputs>({
+    defaultValues: { username: "string", password: "string" },
+  });
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/profile");
-    }
-  }, [isAuthenticated, navigate]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     navigate("/");
+  //   }
+  // }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated) {
+    navigate("/");
+  }
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white border">
@@ -27,7 +33,6 @@ const LoginPage: React.FC = () => {
             نام کاربری
           </label>
           <input
-            value={"string"}
             {...register("username")}
             className="mt-1 block w-full px-3 py-2 border"
           />
@@ -37,7 +42,6 @@ const LoginPage: React.FC = () => {
             رمز عبور
           </label>
           <input
-            value={"string"}
             {...register("password")}
             type="password"
             className="mt-1 block w-full px-3 py-2 border"

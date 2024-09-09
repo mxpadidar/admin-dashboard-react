@@ -1,25 +1,37 @@
-import User from "@/models/user-model";
-import axiosInstance from "@/services/axios-instance";
+import { User } from "@/types/models";
+import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "../axios-instance";
 
-type GetCurrentUserResponse = {
+type apiResponseModel = {
   id: number;
   username: string;
   first_name: string;
   last_name: string;
 };
 
-const getCurrentUser = async (): Promise<User> => {
-  const response = await axiosInstance.get<GetCurrentUserResponse>(
-    "/users/current"
-  );
-  const user: User = {
-    id: response.data.id,
-    username: response.data.username,
-    firstName: response.data.first_name,
-    lastName: response.data.last_name,
+const useGetCurrentUser = () => {
+  const { data, error, isError } = useQuery({
+    queryKey: ["users", "current"],
+    queryFn: async () => {
+      const response = await axiosInstance.get<apiResponseModel>(
+        "/users/current"
+      );
+      return response.data;
+    },
+  });
+
+  if (isError) {
+    console.error(error);
+  }
+
+  const user = {
+    id: data?.id,
+    username: data?.username,
+    firstName: data?.first_name,
+    lastName: data?.last_name,
   };
 
-  return user;
+  return user as User;
 };
 
-export default getCurrentUser;
+export default useGetCurrentUser;

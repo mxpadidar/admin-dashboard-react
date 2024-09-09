@@ -6,13 +6,13 @@ export type LoginApiProps = {
   password: string;
 };
 
-type LoginResponse = {
+type ApiResponseModel = {
   access_token: string;
   token_type: string;
 };
 
 interface HookProps {
-  successFn: (data: LoginResponse) => void;
+  successFn: (data: ApiResponseModel) => void;
   errorFn: (error: unknown, variables: LoginApiProps) => void;
 }
 
@@ -22,7 +22,7 @@ const useLoginApi = ({ successFn, errorFn }: HookProps) => {
       const response = await axiosInstance.post("/login", { ...data });
       return response.data;
     },
-    onSuccess: (data: LoginResponse) => successFn(data),
+    onSuccess: (data: ApiResponseModel) => successFn(data),
     onError: (error, variables) => errorFn(error, variables as LoginApiProps),
   });
   return mutation;

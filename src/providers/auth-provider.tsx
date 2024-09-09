@@ -3,8 +3,12 @@ import useRegisterApi, {
   RegisterApiProps,
   RegisterApiResponse,
 } from "@/services/api/register-user-api";
-import { getAccessToken, removeAccessToken } from "@/services/token-services";
-import { useEffect, useState } from "react";
+import {
+  getAccessToken,
+  removeAccessToken,
+  setAccessToken,
+} from "@/services/token-services";
+import { useLayoutEffect, useState } from "react";
 
 import { createContext } from "react";
 
@@ -23,6 +27,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const registerMutation = useRegisterApi({
     successFn: (data: RegisterApiResponse) => {
       console.log(data);
@@ -36,7 +41,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const loginMutation = useLoginApi({
     successFn: (data) => {
-      console.log(data);
+      setAccessToken(data.access_token);
       setIsAuthenticated(true);
     },
     errorFn: (error, variables) => {
@@ -45,7 +50,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     },
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const accessToken = getAccessToken();
     if (accessToken) {
       setIsAuthenticated(true);
